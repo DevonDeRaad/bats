@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1607106030031.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3588799872",
+    "id" : "5347BC6B",
+    "lastKnownWriteTime" : 1607119282,
+    "last_content_update" : 1607119282131,
+    "path" : "~/Desktop/hipposideros/bats/optimize.denovo.R",
+    "project_path" : "optimize.denovo.R",
+    "properties" : {
+        "cursorPosition" : "11,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
