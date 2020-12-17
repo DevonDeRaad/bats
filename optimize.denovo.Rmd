@@ -1,0 +1,35 @@
+---
+title: "optimize.denovo"
+author: "Devon DeRaad"
+date: "12/17/2020"
+output: html_document
+---
+
+```{r}
+#optimize denovo
+#devtools::install_github("DevonDeRaad/RADstackshelpR")
+library(RADstackshelpR)
+
+#setwd("/Users/devder/Desktop/hipposideros/")
+
+#optimize m
+optimize_m(m3="/Users/devder/Desktop/hipposideros/m3.vcf",
+           m4="/Users/devder/Desktop/hipposideros/m4.vcf",
+           m5="/Users/devder/Desktop/hipposideros/m5.vcf",
+           m6="/Users/devder/Desktop/hipposideros/m6.vcf",
+           m7="/Users/devder/Desktop/hipposideros/m7.vcf")
+
+```
+
+```{r}
+#optimize M
+optimize_M(M1="/Users/devder/Desktop/hipposideros/M1.vcf",
+           M2="/Users/devder/Desktop/hipposideros/M2.vcf",
+           M3="/Users/devder/Desktop/hipposideros/M3.vcf",
+           M4="/Users/devder/Desktop/hipposideros/M4.vcf",
+           M5="/Users/devder/Desktop/hipposideros/M5.vcf",
+           #M6="M6.vcf",
+           M7="/Users/devder/Desktop/hipposideros/M7.vcf",
+           M8="/Users/devder/Desktop/hipposideros/M8.vcf")
+```
+
