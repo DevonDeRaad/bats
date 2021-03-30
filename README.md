@@ -1,7 +1,7 @@
 Repository for analysis of *Hipposideros diadema*, *dinops*, and *demissus* RADseq data
 ==================================================================================
 
-*   See the process for optimizing stacks parameters, using the RADstackshelpR pipeline:
+*   See the process for optimizing stacks parameters, using the [RADstackshelpR](https://github.com/DevonDeRaad/RADstackshelpR) pipeline:
 
     > <https://devonderaad.github.io/bats/optimize.denovo.html>
 
