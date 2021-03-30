@@ -1,5 +1,10 @@
-Repository for analysis of Hipposideros diadema, dinops, and demissus RAD samples
+Repository for analysis of *Hipposideros diadema*, *dinops*, and *demissus* RADseq data
 ==================================================================================
+
+*   See the process for optimizing stacks parameters:
+
+    > <https://devonderaad.github.io/bats/optimize.denovo.html>
+
 
 See the process for optimizing stacks parameters: <https://devonderaad.github.io/bats/optimize.denovo.html>
 
