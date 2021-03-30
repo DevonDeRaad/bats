@@ -5,25 +5,26 @@ library(RADstackshelpR)
 setwd("/Users/devder/Desktop/hipposideros/")
 
 #optimize m
-optimize_m(m3="m3.vcf",
-           m4="m4.vcf",
-           m5="m5.vcf",
-           m6="m6.vcf",
-           m7="m7.vcf")
+output<-optimize_m(m3="m_3.vcf",
+           m4="m_4.vcf",
+           m5="m_5.vcf",
+           m6="m_6.vcf",
+           m7="m_7.vcf")
 
 #optimize M
-optimize_M(M1="M1.vcf",
+output<-optimize_bigM(M1="M1.vcf",
            M2="M2.vcf",
            M3="M3.vcf",
            M4="M4.vcf",
            M5="M5.vcf",
-           #M6="M6.vcf",
+           M6="M6.vcf",
            M7="M7.vcf",
            M8="M8.vcf")
 
 #optimize n
-optimize_n(nequalsM="n1.vcf",
-           nequalsMplus1="n2.vcf")
+optimize_n(nequalsMminus1="n1.vcf",
+           nequalsM="n2.vcf",
+           nequalsMplus1="n3.vcf")
            
 
 
