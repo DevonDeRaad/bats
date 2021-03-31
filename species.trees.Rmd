@@ -5,7 +5,8 @@ date: "12/23/2020"
 output: html_document
 ---
 
-```{r}
+```{r, out.width = "800px", out.height="800px"}
+library(knitr)
 #SVDquartets
 #steps:
 #export an unlinked, filtered vcf file
@@ -32,21 +33,26 @@ output: html_document
 #visualize in figtree
 
 #check out species tree produced by SVDquartets from unlinked SNPs
-knitr::include_graphics("/Users/devder/Desktop/hipposideros/hippo.svdquartets.tre.png")
+knitr::include_graphics("/Users/devder/Desktop/hipposideros/hippo.svdquartets.tre.pdf")
+
 
 ```
 
 
 
-```{r}
+```{r, out.width = "800px", out.height="800px"}
 #visualize treemix tree
+#best tree
 knitr::include_graphics("/Users/devder/Desktop/hipposideros/treemix/tree.mix.pdf")
+#tree with one migration edge
 knitr::include_graphics("/Users/devder/Desktop/hipposideros/treemix/tree.mix.suppmat.pdf")
+#no significant migration edges
 knitr::include_graphics("/Users/devder/Desktop/hipposideros/treemix/treemix.variance.explained.pdf")
 
+
 ```
 
-```{r}
+```{r, out.width = "800px", out.height="800px"}
 #show densitree from SNAPP
 knitr::include_graphics("/Users/devder/Desktop/hipposideros/snapp.tree.png")
 
