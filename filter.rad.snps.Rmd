@@ -27,6 +27,8 @@ vcfR@gt[1:10,1:2]
 samps<-read.csv("~/Desktop/hipposideros/hipposideros.sampling.csv")
 #retain samples that were sequenced successfully
 samps<-samps[samps$id %in% colnames(vcfR@gt),]
+#reorder sampling file to match order of samples in vcf
+samps<-samps[match(colnames(vcfR@gt)[-1], samps$id),]
 samps$id == colnames(vcfR@gt)[-1] #check that order matches
 
 #generate popmap file. Two column popmap with the same format as stacks, and the columns must be named 'id' and 'pop'
@@ -59,6 +61,8 @@ vcfR<-max_depth(vcfR, maxdepth = 100)
 
 
 ```{r}
+#remove SNPs that have become invariant
+vcfR<-min_mac(vcfR, min.mac = 1)
 #check vcfR to see how many SNPs we have left
 vcfR
 ```
@@ -68,9 +72,12 @@ vcfR
 #run function to visualize samples
 miss<-missing_by_sample(vcfR=vcfR)
 
+#looks like 3 samples that just don't improve and will always be low
 #run function to drop samples above the threshold we want from the vcf
-#setting it conservatively for now
-vcfR<-missing_by_sample(vcfR=vcfR, cutoff = .9)
+vcfR<-missing_by_sample(vcfR=vcfR, cutoff = .7)
+
+#remove SNPs that became invariant
+vcfR<-min_mac(vcfR, min.mac = 1)
 
 #subset popmap to only include retained individuals
 popmap<-popmap[popmap$id %in% colnames(vcfR@gt),]
@@ -79,22 +86,9 @@ popmap<-popmap[popmap$id %in% colnames(vcfR@gt),]
 #vcfR@gt <- vcfR@gt[,colnames(vcfR@gt) != "KVO248_H_dinops_Isabel"]
 ```
 
-```{r}
-#drop invariant sites plus singletons for plotting
-vcf.filt<-min_mac(vcfR, min.mac = 2)
-#assess the effect of missing data on clustering inferences
-assess_missing_data_tsne(vcf.filt, popmap = popmap, thresholds =c(.7,.8,.9, 1), clustering = FALSE)
-#do we need to drop samples more aggressively?
-#which filtering threshold adequately removes missing data to allow objective clustering?
-#Samples at the high end of missing data cutoffs are not clustering correctly and dragging this whole enterprise down
-#let's set a better cutoff
-vcfR<-missing_by_sample(vcfR=vcfR, cutoff = .75)
-```
-
 ## Step 3: Set the arbitrary missing data cutoff
 ### We can visualize the effect that typical missing data cutoffs will have on both the number of SNPs retained and the total missing data in our entire dataset.
 ### We want to choose a cutoff that minimizes the overall missing data in the dataset, while maximizing the total number of loci retained.
-### Clustering analyses above show that .7, .8, and .9 all seem to allow samples to cluster reasonably
 ```{r}
 #visualize missing data by SNP and the effect of various cutoffs on the missingness of each sample
 missing_by_snp(vcfR)
@@ -102,28 +96,43 @@ missing_by_snp(vcfR)
 vcfR<-missing_by_snp(vcfR, cutoff = .9)
 ```
 
-
-check once more to see how many SNPs and individuals remain compared to our original, unfiltered vcf
+## check the effect of mac threshold on clustering
 ```{r}
-#use this function to remove loci that have become invariant during our filtering procedure plus singletons which don't contribute to phylogenetic signal
-vcfR<-min_mac(vcfR, min.mac = 2)
-#check the number of loci retained
+#drop invariant sites plus singletons for plotting
+vcf.filt<-min_mac(vcfR, min.mac = 2)
+#compare SNP counts
 vcfR
+vcf.filt
+#assess the effect of MAC cutoff on clustering inferences
+assess_missing_data_pca(vcfR, popmap = popmap, clustering = FALSE)
+assess_missing_data_pca(vcf.filt, popmap = popmap, clustering = FALSE)
+
+#mac filter significantly improves our ability to discrimate between clusters, i.e., increases signal to noise ratio, so we will keep this one for downstream analyses
+```
+
+### plot quality heatmaps
+```{r}
 #plot depth per snp and per sample
-dp <- extract.gt(vcfR, element = "DP", as.numeric=TRUE)
+dp <- extract.gt(vcf.filt, element = "DP", as.numeric=TRUE)
 heatmap.bp(dp, rlabels = FALSE)
 
 #plot genotype quality per snp and per sample
-gq <- extract.gt(vcfR, element = "GQ", as.numeric=TRUE)
+gq <- extract.gt(vcf.filt, element = "GQ", as.numeric=TRUE)
 heatmap.bp(gq, rlabels = FALSE)
 ```
 
 ### We can filter for linkage (one SNP per locus) and use the convenient function 'write.vcf' from vcfR to export our filtered vcf file for downstream analyses
 ```{r}
+#final filetered vcf stats
+vcf.filt
 #write out the filtered vcf file
-#write.vcf(vcfR, file = "~/Desktop/hipposideros/filtered.vcf.gz")
+#write.vcf(vcf.filt, file = "~/Desktop/hipposideros/filtered.vcf.gz")
+
 #filter to one SNP per locus to get an unlinked dataset
-unlinked.vcf<-distance_thin(vcfR, min.distance = 10000)
+unlinked.vcf<-distance_thin(vcf.filt, min.distance = 10000)
+#final filetered, unlinked vcf stats
+unlinked.vcf
+
 #write out vcf file of unlinked SNPs
 #write.vcf(unlinked.vcf, file = "~/Desktop/hipposideros/unlinked.filtered.vcf.gz")
 ```
