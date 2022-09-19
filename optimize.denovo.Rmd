@@ -9,21 +9,21 @@ output: html_document
 #load packages
 library(RADstackshelpR)
 library(gridExtra)
+library(ggplot2)
 ```
 
 ##Step 1: Demultiplex each sample using 'process_radtags'.
-##Step 2: Samples with a demultiplexed file size of < 2 megabytes simply don't have enough information to be relevant downstream, and can be removed right away. (Note: this will help ensure that there are enough loci retained at an 80% completeness cutoff to make informed optimization decisions)
+##Step 2: Use fastqcR to remove samples that didn't generate a meaningful amount of sequence data.
 ##Step 3: Iterate over values of m ranging from 3-7, while leaving all other parameters at default values.
 ##Step 4: Visualize the output of these 5 runs and determine the optimal value for m.
 ```{r, dpi=300, out.width="100%",out.height="100%", fig.align = "center"}
 #optimize_m function will generate summary stats on your 5 iterative runs
 #input can be full path to each file or just the file name if your working directory contains the files
-m.out<-optimize_m(m3="/Users/devder/Desktop/hipposideros/m_3.vcf",
-           m4="/Users/devder/Desktop/hipposideros/m_4.vcf",
-           m5="/Users/devder/Desktop/hipposideros/m_5.vcf",
-           m6="/Users/devder/Desktop/hipposideros/m_6.vcf",
-           m7="/Users/devder/Desktop/hipposideros/m_7.vcf")
-
+m.out<-optimize_m(m3="/Users/devder/Desktop/hipposideros/m3.vcf",
+           m4="/Users/devder/Desktop/hipposideros/m4.vcf",
+           m5="/Users/devder/Desktop/hipposideros/m5.vcf",
+           m6="/Users/devder/Desktop/hipposideros/m6.vcf",
+           m7="/Users/devder/Desktop/hipposideros/m7.vcf")
 #visualize the effect of varying m on the depth of each sample
 vis_depth(output = m.out)
 #visualize the effect of varying m on the number of SNPs retained
@@ -39,14 +39,14 @@ vis_loci(output = m.out, stacks_param = "m")
 ##Step 6: Visualize the output of these 8 runs and determine the optimal value for M.
 ```{r, dpi=300, out.width="100%",out.height="100%", fig.align = "center"}
 #optimize M
-M.out<-optimize_bigM(M1="/Users/devder/Desktop/hipposideros/M1.vcf",
-           M2="/Users/devder/Desktop/hipposideros/M2.vcf",
-           M3="/Users/devder/Desktop/hipposideros/M3.vcf",
-           M4="/Users/devder/Desktop/hipposideros/M4.vcf",
-           M5="/Users/devder/Desktop/hipposideros/M5.vcf",
-           M6="/Users/devder/Desktop/hipposideros/M6.vcf",
-           M7="/Users/devder/Desktop/hipposideros/M7.vcf",
-           M8="/Users/devder/Desktop/hipposideros/M8.vcf")
+M.out<-optimize_bigM(M1="/Users/devder/Desktop/hipposideros/bigM1.vcf",
+           M2="/Users/devder/Desktop/hipposideros/bigM2.vcf",
+           M3="/Users/devder/Desktop/hipposideros/bigM3.vcf",
+           M4="/Users/devder/Desktop/hipposideros/bigM4.vcf",
+           M5="/Users/devder/Desktop/hipposideros/bigM5.vcf",
+           M6="/Users/devder/Desktop/hipposideros/bigM6.vcf",
+           M7="/Users/devder/Desktop/hipposideros/bigM7.vcf",
+           M8="/Users/devder/Desktop/hipposideros/bigM8.vcf")
 
 #visualize the effect of varying M on the number of SNPs retained
 vis_snps(output = M.out, stacks_param = "M")
@@ -68,7 +68,6 @@ vis_snps(output = n.out, stacks_param = "n")
 
 #visualize the effect of varying n on the number of polymorphic loci retained
 vis_loci(output = n.out, stacks_param = "n")
-
 ```
 
 #Finally, make a single figure showing the optimization process of all three parameters
@@ -82,6 +81,7 @@ gl[[5]]<-vis_loci(output = M.out, stacks_param = "M")
 gl[[6]]<-vis_snps(output = n.out, stacks_param = "n")
 gl[[7]]<-vis_loci(output = n.out, stacks_param = "n")
 
+#visualize as a single plot
 grid.arrange(
   grobs = gl,
   widths = c(1,1,1,1,1,1),
@@ -90,6 +90,13 @@ grid.arrange(
                         c(6,6,6,7,7,7))
 )
 
+#save plot
+g<-arrangeGrob(grobs = gl, widths = c(1,1,1,1,1,1),
+  layout_matrix = rbind(c(1,1,2,2,3,3),
+                        c(4,4,4,5,5,5),
+                        c(6,6,6,7,7,7)))
+
+ggsave(file="~/Desktop/hipposideros/denovo.optimization.png", g, width = 11, height=9, units = "in")
 ```
 
 
