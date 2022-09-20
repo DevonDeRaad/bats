@@ -9,14 +9,14 @@ Repository for analysis of *Hipposideros diadema*, *dinops*, and *demissus* RADs
 
     > <https://devonderaad.github.io/bats/filter.rad.snps.html>
 
-*   See initial analysis of genetic structure amongst these three currently described species:
+*   See analyses genetic structure amongst these three currently described species:
 
-    > <https://devonderaad.github.io/bats/investigate.structure.html>
+    > <https://devonderaad.github.io/bats/popgen.analyses.html>
 
-*   See comparisons between machine learning species delimitation methods to determine the number of species actually present in our dataset:
-
-    > <https://devonderaad.github.io/bats/ml.species.delimitation.html>
-
-*   See species tree analyses reconstructing the relationships between the putative species we have identified using SVDquartets, treemix, and SNAPP:
+*   See species tree analyses reconstructing the relationships between the putative species we have identified using ASTRAL-III and TreeMix:
 
     > <https://devonderaad.github.io/bats/species.trees.html>
+    
+*   See tests for gene flow:
+
+    > <https://devonderaad.github.io/bats/xxx>
