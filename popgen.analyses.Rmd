@@ -19,13 +19,10 @@ library(gplots)
 library(scatterpie)
 library(geosphere)
 library(ggtree)
-
-gg_color_hue <- function(n) {
-  hues = seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
-}
+library(SNPfiltR)
 ```
 
+### Read in vcf and locality info
 ```{r, out}
 #read in vcf
 vcfR <- read.vcfR("~/Desktop/hipposideros/filtered.vcf.gz")
@@ -38,17 +35,22 @@ locs<-read.csv("~/Desktop/hipposideros/hipposideros.sampling.csv")
 #subset locs to include only samples that passed filtering, and have been retained in the vcf
 locs<-locs[locs$id %in% gen@ind.names,]
 
-#check that our sampling df matches our vcf file
-gen@ind.names == locs$id
+#reorder sampling file to match order of samples in vcf
+locs<-locs[match(colnames(vcfR@gt)[-1], locs$id),]
+locs$id == colnames(vcfR@gt)[-1] #check that order matches
 
 #check number of samples per species
 locs<-droplevels(locs)
 locs$pop<-paste(locs$species, locs$Island)
 table(locs$species)
 table(locs$pop)
-
+table(locs$Island)
+#show the 8 color pallete names we will use
+RColorBrewer::brewer.pal(n=8, "Set2")
+RColorBrewer::brewer.pal(n=5, "Greys")
 ```
 
+### Make sampling map
 ```{r, fig.height=5, fig.width=8}
 #make full map
 pac<-ggplot2::map_data("world")
@@ -84,101 +86,109 @@ ggplot()+
         legend.background = element_blank())+
   xlab("longitude")+ ylab("latitude")
 
-#use dplyr to make a table with unique lat longs only and the count
-sampling.sheet<-locs %>% group_by(Latitude, Longitude) %>% summarize(count=n())
-#add species column
-sampling.sheet$pop<-c("demissus Makira","diadema Guadalcanal","dinops Guadalcanal","diadema Ngella",
-                      "diadema Gatokae","dinops Isabel","diadema Isabel","diadema PNG",
-                      "diadema PNG","diadema New Britain")
-sampling.sheet$species<-c("demissus","diadema","dinops","diadema","diadema","dinops","diadema",
-                          "diadema","diadema","diadema")
-sampling.sheet$island<-c("Makira","Guadalcanal","Guadalcanal","Ngella","Gatokae","Isabel",
-                         "Isabel","PNG","PNG","New Britain")
-
-
-sampling.sheet[3,1]<- -9.75
-sampling.sheet[3,2]<-160.2
-sampling.sheet[7,1]<- -8
-sampling.sheet[7,2]<-159.1
-
-ggplot()+
-  geom_polygon(data = pac, aes(x=long, y = lat, group = group), fill="grey", col="black", cex=.1)+
-  coord_sf(xlim = c(143, 162), ylim = c(-11.5, -3)) + 
-  geom_point(data = sampling.sheet, aes(x = Longitude, y = Latitude, col=island, shape=species,size=count),
-             alpha =.6, show.legend=TRUE) +
-  theme_classic()+
-  #scale_color_manual(values=viridis::plasma(n=9))+
-  scale_shape_manual(values = c(15,16,17))+
-  scale_size_continuous(range = c(5,10), breaks = c(1,3,6))+
-  guides(colour = guide_legend(override.aes = list(size = 5), order=1),
-         size = guide_legend(nrow = 1, order = 3),
-         shape = guide_legend(override.aes = list(size = 5), order=2, label.theme= element_text(face="italic")))+
-  theme(legend.justification = c(0.01, 0.01),
-        legend.background = element_blank())+
-  xlab("longitude")+ ylab("latitude")
-
-ggsave("~/Desktop/hipposideros/map.pdf", width = 9, height = 6)
+### deprecated ###
+##use dplyr to make a table with unique lat longs only and the count
+#sampling.sheet<-locs %>% group_by(Latitude, Longitude) %>% summarize(count=n())
+##add species column
+#sampling.sheet$pop<-c("demissus Makira","diadema Guadalcanal","dinops Guadalcanal","diadema Ngella",
+#                      "diadema Gatokae","dinops Isabel","diadema Isabel","diadema PNG",
+#                      "diadema PNG","diadema New Britain")
+#sampling.sheet$species<-c("demissus","diadema","dinops","diadema","diadema","dinops","diadema",
+#                          "diadema","diadema","diadema")
+#sampling.sheet$island<-c("Makira","Guadalcanal","Guadalcanal","Ngella","Gatokae","Isabel",
+#                         "Isabel","PNG","PNG","New Britain")
+#
+#
+#sampling.sheet[3,1]<- -9.75
+#sampling.sheet[3,2]<-160.2
+#sampling.sheet[7,1]<- -8
+#sampling.sheet[7,2]<-159.1
+#
+#ggplot()+
+#  geom_polygon(data = pac, aes(x=long, y = lat, group = group), fill="grey", col="black", cex=.1)+
+#  coord_sf(xlim = c(143, 162), ylim = c(-11.5, -3)) + 
+#  geom_point(data = sampling.sheet, aes(x = Longitude, y = Latitude, col=island, shape=species,size=count),
+#             alpha =.6, show.legend=TRUE) +
+#  theme_classic()+
+#  #scale_color_manual(values=viridis::plasma(n=9))+
+#  scale_shape_manual(values = c(15,16,17))+
+#  scale_size_continuous(range = c(5,10), breaks = c(1,3,6))+
+#  guides(colour = guide_legend(override.aes = list(size = 5), order=1),
+#         size = guide_legend(nrow = 1, order = 3),
+#         shape = guide_legend(override.aes = list(size = 5), order=2, label.theme= element_text(face="italic")))+
+#  theme(legend.justification = c(0.01, 0.01),
+#        legend.background = element_blank())+
+#  xlab("longitude")+ ylab("latitude")
+#
+##ggsave("~/Desktop/hipposideros/map.pdf", width = 9, height = 6)
 
 ```
 
+### Make SplitsTree
 ```{r, fig.height=8, fig.width=8}
 #define populations (requirement for the next line)
 pop(gen)<-locs$species
 #calculate pairwise genetic distance matrix among all samples in the genlight object
 sample.div <- stamppNeisD(gen, pop = FALSE)
 #export for splitstree
-stamppPhylip(distance.mat=sample.div, file="~/Downloads/bat.splits.txt")
+stamppPhylip(distance.mat=sample.div, file="~/Desktop/hipposideros/bat.splits.txt")
 
 #read in the phylogenetic network showing relationships between these populations
 knitr::include_graphics(c("/Users/devder/Desktop/hipposideros/map.phylonetwork.png"))
 ```
 
+### Make PCA
 ```{r, fig.height = 6, fig.width = 6, fig.align = "center"}
-
-#PCA of species
+#PCA of just the five species with population level sampling
+#subset vcfR to only those 5 taxa
+colnames(vcfR@gt)
+sub.vcfR<-vcfR[,c(1:9,13:18,23:29,12)]
+colnames(sub.vcfR@gt)
+#subset locs to only those 5 taxa
+sub.locs<-locs[c(1:8,12:17,22:28,11),]
+table(sub.locs$pop)
+#remove SNPs that have become invariant due to downsampling
+sub.vcfR<-min_mac(sub.vcfR, min.mac = 2)
+sub.vcfR
+#convert vcfR to genlight
+gen<-vcfR2genlight(sub.vcfR)
+#perform PCA
 di.pca<-glPca(gen, nf=6)
-
 #pull pca scores out of df
 di.pca.scores<-as.data.frame(di.pca$scores)
-di.pca.scores$species<-locs$species
-
-#ggplot color by species
-ggplot(di.pca.scores, aes(x=PC1, y=PC2, color=species)) +
-  geom_point(cex = 5, alpha=.5)+
-  theme_classic()
-
-#colored by island
-x<-gsub(".*_H_","",rownames(di.pca.scores))
-x<-gsub(".*_","",x)
-di.pca.scores$island<-locs$Island
-
+di.pca.scores$species<-sub.locs$species
+di.pca.scores$island<-sub.locs$Island
+#ggplot color by locality, shape by species
 #plot colored by island shape = species
 ggplot(di.pca.scores, aes(x=PC1, y=PC2, color=island, shape=species)) +
   geom_point(cex = 5, alpha=.5)+
-  scale_shape_manual(values = c(15,16,17))+
+  scale_shape_manual(values = c(16,17))+
   guides(shape = guide_legend(override.aes = list(size = 5), order=2, label.theme= element_text(face="italic")))+
   theme_classic()
 
-#save plot
-ggsave("~/Desktop/hipposideros/pca.full.pdf", width = 4.6, height = 3)
+#record variance percentages explained
+var_frac <- di.pca$eig/sum(di.pca$eig)
 
-#plot colored by island shape = species
+#scale colors manual to match the splitstree, add % variance explained
 ggplot(di.pca.scores, aes(x=PC1, y=PC2, color=island, shape=species)) +
-  geom_point(cex = 5, alpha=.5)+
-  theme_classic()+
-  scale_shape_manual(values = c(15,16,17))+
+  #geom_point(aes(shape=species),colour = "black", size = 5)+
+  geom_point(cex = 5.5, alpha=.75)+
+  scale_shape_manual(values = c(16,17))+
+  #scale_fill_manual(values = c("#A6D854", "#FFD92F", "#E5C494", "#B3B3B3"))+
+  scale_color_manual(values = c("#E5C494", "#FFD92F", "#B3B3B3", "#E78AC3"))+
   guides(shape = guide_legend(override.aes = list(size = 5), order=2, label.theme= element_text(face="italic")))+
-  coord_cartesian(ylim=c(-5,5), xlim=c(-10,0))
+  xlab("PC1, 20.7% variance explained")+
+  ylab("PC2, 18.0% variance explained")+
+  theme_classic()
 
 #save plot
-ggsave("~/Desktop/hipposideros/pca.subset.pdf", width = 4.6, height = 3)
-
+#ggsave("~/Desktop/hipposideros/pca.subset.pdf", width = 6.3, height = 4)
 ```
 
-
+### calculate pairwise Fst
 ```{r, fig.height = 6, fig.width = 8, fig.align = "center"}
-#investigate how divergent pops are using Nei's D
-gen@pop<-as.factor(locs$pop)
+#investigate how divergent pops are using Fst
+gen@pop<-as.factor(sub.locs$pop)
 #calc pairwise Fst
 di.heat<-stamppNeisD(gen)
 colnames(di.heat)<-rownames(di.heat)
@@ -189,12 +199,8 @@ ggplot(data = di.heat, aes(x=X1, y=X2, fill=value)) +
   scale_fill_gradient2(low = "white", high = "red", space = "Lab", name="Nei's D") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#investigate how divergent pops are using Fst between pops with sample size > 1
-#subset genlight to only calcaratus
-fst.gen<-new("genlight",(as.matrix(gen)[c(2:17,20:25,27:28), ]))
-fst.gen@pop<-as.factor(locs$pop[c(2:17,20:25,27:28)])
 #calc pairwise Fst
-di.heat<-stamppFst(fst.gen)
+di.heat<-stamppFst(gen)
 m<-di.heat$Fsts
 #fill in upper triangle of matrix
 m[upper.tri(m)] <- t(m)[upper.tri(m)]
@@ -210,171 +216,106 @@ ggplot(data = heat, aes(x=X1, y=X2, fill=value)) +
   scale_fill_gradient2(low = "white", high = "red", space = "Lab", name="Fst") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#make vector to fill with fixed diff values
-f<-heat$value
+#plot with labels
+ggplot(data = heat, aes(x=X1, y=X2, fill="white")) + 
+  geom_tile(color="black", fill="white")+
+  geom_text(data=heat,aes(label=round(value, 2)))+
+  theme_minimal()+
+  #scale_fill_gradient2(low = "white", high = "red", space = "Lab", name="Fst") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+#plot without labels
+ggplot(data = heat, aes(x=X1, y=X2, fill="white")) + 
+  geom_tile(color="black", fill="white")+
+  geom_text(data=heat,aes(label=round(value, 2)))+
+  theme_minimal()+
+  #scale_fill_gradient2(low = "white", high = "red", space = "Lab", name="Fst") +
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank())
+
+#save plot
+#ggsave("~/Desktop/hipposideros/fst.subset.pdf", width = 3, height = 3)
 ```
 
+### Make ADMIXTURE plots
 ```{r}
-#identify the number of fixed differences between pops
-mat<-extract.gt(vcfR)
-conv.mat<-mat
-conv.mat[conv.mat == "0/0"]<-0
-conv.mat[conv.mat == "0/1"]<-1
-conv.mat[conv.mat == "1/1"]<-2
-conv.mat<-as.data.frame(conv.mat)
-#convert to numeric
-for (i in 1:ncol(conv.mat)){
-  conv.mat[,i]<-as.numeric(as.character(conv.mat[,i]))
+#subset unlinked SNP dataset to only those 5 pops and remove all singletons and invariant sites
+vcfR <- read.vcfR("~/Desktop/hipposideros/unlinked.filtered.vcf.gz")
+colnames(vcfR@gt)
+sub.vcfR<-vcfR[,c(1:9,13:18,23:29,12)]
+colnames(sub.vcfR@gt)
+#remove SNPs that have become invariant and singletons due to downsampling
+sub.vcfR<-min_mac(sub.vcfR, min.mac = 2)
+sub.vcfR
+#must make chromosome names non-numeric for plink
+sub.vcfR@fix[,1]<-paste("a", sub.vcfR@fix[,1], sep="")
+#write to disk
+#vcfR::write.vcf(sub.vcfR, file="~/Desktop/hipposideros/sub.vcf.gz")
+#use this thinned file to execute ADMIXTURE on the cluster using this script:
+##!/bin/sh
+##
+##SBATCH --job-name=admixture               # Job Name
+##SBATCH --nodes=1             # 40 nodes
+##SBATCH --ntasks-per-node=10               # 40 CPU allocation per Task
+##SBATCH --partition=sixhour         # Name of the Slurm partition used
+##SBATCH --chdir=/home/d669d153/work/hipposideros/admixture    # Set working d$
+##SBATCH --mem-per-cpu=1gb            # memory requested
+##SBATCH --time=360
+#
+##use plink to convert vcf directly to bed format:
+#/home/d669d153/work/plink --vcf sub.vcf --double-id --allow-extra-chr --make-bed --out binary_fileset
+##fix chromosome names
+#cut -f2- binary_fileset.bim  > temp
+#awk 'BEGIN{FS=OFS="\t"}{print value 1 OFS $0}' temp > binary_fileset.bim
+
+##run admixture for a K of 1-10, using cross-validation, with 10 threads
+#for K in 1 2 3 4 5 6 7 8 9 10; 
+#do /home/d669d153/work/admixture_linux-1.3.0/admixture --cv -j10 binary_fileset.bed $K | tee log${K}.out;
+#done
+#
+##Which K iteration is optimal according to ADMIXTURE ?
+#grep -h CV log*.out > log.errors.txt
+
+#read in ADMIXTURE results
+#setwd to admixture directory run on the cluster
+setwd("~/Desktop/hipposideros/admixture")
+
+#read in log error values to determine optimal K
+log<-read.table("log.errors.txt")[,c(3:4)]
+#use double backslash to interpret the opening parentheses literally in the regular expression
+log$V3<-gsub("\\(K=", "", log$V3)
+log$V3<-gsub("):", "", log$V3)
+#interpret K values as numerical
+log$V3<-as.numeric(log$V3)
+#rename columns
+colnames(log)<-c("Kvalue","cross.validation.error")
+
+#make plot showing the cross validation error across K values 1:10
+ggplot(data=log, aes(x=Kvalue, y=cross.validation.error, group=1)) +
+  geom_line(linetype = "dashed")+
+  geom_point()+
+  ylab("cross-validation error")+
+  xlab("K")+
+  scale_x_continuous(breaks = c(1:10))+
+  theme_classic()
+
+#read in input file in order to get list of input samples in order
+sampling<-read.table("binary_fileset.fam")[,1]
+sampling
+
+#read in all ten runs and save each dataframe in a list
+runs<-list()
+#read in log files
+for (i in 1:10){
+  runs[[i]]<-read.table(paste0("binary_fileset.", i, ".Q"))
 }
 
-#show colnames to verify you're subsetting correctly
-colnames(conv.mat) 
-#calc AF between guadalcanal dia and guadalcanal din 
-dia.af<-(rowSums(conv.mat[,c(2,3,7,8)], na.rm=T)/(rowSums(is.na(conv.mat[,c(2,3,7,8)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(4,5,6,19)], na.rm=T)/(rowSums(is.na(conv.mat[,c(4,5,6,19)]) == FALSE)))/2
-f[2]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal dia and isabel dia
-dia.af<-(rowSums(conv.mat[,c(2,3,7,8)], na.rm=T)/(rowSums(is.na(conv.mat[,c(2,3,7,8)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(9:12)], na.rm=T)/(rowSums(is.na(conv.mat[,c(9:12)]) == FALSE)))/2
-f[3]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal dia and isabel din
-dia.af<-(rowSums(conv.mat[,c(2,3,7,8)], na.rm=T)/(rowSums(is.na(conv.mat[,c(2,3,7,8)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(13:17)], na.rm=T)/(rowSums(is.na(conv.mat[,c(13:17)]) == FALSE)))/2
-f[4]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal dia and Ngella dia
-dia.af<-(rowSums(conv.mat[,c(2,3,7,8)], na.rm=T)/(rowSums(is.na(conv.mat[,c(2,3,7,8)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(20:25)], na.rm=T)/(rowSums(is.na(conv.mat[,c(20:25)]) == FALSE)))/2
-f[5]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal dia and PNG dia
-dia.af<-(rowSums(conv.mat[,c(2,3,7,8)], na.rm=T)/(rowSums(is.na(conv.mat[,c(2,3,7,8)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(27:28)], na.rm=T)/(rowSums(is.na(conv.mat[,c(27:28)]) == FALSE)))/2
-f[6]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal din and isabel dia
-dia.af<-(rowSums(conv.mat[,c(4,5,6,19)], na.rm=T)/(rowSums(is.na(conv.mat[,c(4,5,6,19)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(9:12)], na.rm=T)/(rowSums(is.na(conv.mat[,c(9:12)]) == FALSE)))/2
-f[9]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal din and isabel din
-dia.af<-(rowSums(conv.mat[,c(4,5,6,19)], na.rm=T)/(rowSums(is.na(conv.mat[,c(4,5,6,19)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(13:17)], na.rm=T)/(rowSums(is.na(conv.mat[,c(13:17)]) == FALSE)))/2
-f[10]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal din and Ngella dia
-dia.af<-(rowSums(conv.mat[,c(4,5,6,19)], na.rm=T)/(rowSums(is.na(conv.mat[,c(4,5,6,19)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(20:25)], na.rm=T)/(rowSums(is.na(conv.mat[,c(20:25)]) == FALSE)))/2
-f[11]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between guadalcanal din and PNG dia
-dia.af<-(rowSums(conv.mat[,c(4,5,6,19)], na.rm=T)/(rowSums(is.na(conv.mat[,c(4,5,6,19)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(27:28)], na.rm=T)/(rowSums(is.na(conv.mat[,c(27:28)]) == FALSE)))/2
-f[12]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between Isabel dia and Isabel din
-dia.af<-(rowSums(conv.mat[,c(9:12)], na.rm=T)/(rowSums(is.na(conv.mat[,c(9:12)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(13:17)], na.rm=T)/(rowSums(is.na(conv.mat[,c(13:17)]) == FALSE)))/2
-f[16]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between Isabel dia and Ngella dia
-dia.af<-(rowSums(conv.mat[,c(9:12)], na.rm=T)/(rowSums(is.na(conv.mat[,c(9:12)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(20:25)], na.rm=T)/(rowSums(is.na(conv.mat[,c(20:25)]) == FALSE)))/2
-f[17]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between Isabel dia and PNG dia
-dia.af<-(rowSums(conv.mat[,c(9:12)], na.rm=T)/(rowSums(is.na(conv.mat[,c(9:12)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(27:28)], na.rm=T)/(rowSums(is.na(conv.mat[,c(27:28)]) == FALSE)))/2
-f[18]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between Isabel din and Ngella dia
-dia.af<-(rowSums(conv.mat[,c(13:17)], na.rm=T)/(rowSums(is.na(conv.mat[,c(13:17)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(20:25)], na.rm=T)/(rowSums(is.na(conv.mat[,c(20:25)]) == FALSE)))/2
-f[23]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between Isabel din and PNG dia
-dia.af<-(rowSums(conv.mat[,c(13:17)], na.rm=T)/(rowSums(is.na(conv.mat[,c(13:17)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(27:28)], na.rm=T)/(rowSums(is.na(conv.mat[,c(27:28)]) == FALSE)))/2
-f[24]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#calc AF between Ngella dia and PNG dia
-dia.af<-(rowSums(conv.mat[,c(20:25)], na.rm=T)/(rowSums(is.na(conv.mat[,c(20:25)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(27:28)], na.rm=T)/(rowSums(is.na(conv.mat[,c(27:28)]) == FALSE)))/2
-f[30]<-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-heat$var<-f
-#plot with labels
-ggplot(data = heat, aes(x=X1, y=X2, fill=value)) + 
-  geom_tile()+
-  scale_x_discrete(limits=levels(heat$X1)[c(1,5,2,6,3,4)])+ 
-  scale_y_discrete(limits=levels(heat$X1)[c(1,5,2,6,3,4)])+ 
-  geom_text(data=heat,aes(label=round(var, 2)))+
-  theme_minimal()+
-  scale_fill_gradient2(low = "white", high = "red", space = "Lab", name="Fst") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.title.x = element_blank(), axis.title.y = element_blank())
-
-#now have it plotted with Fst above the diagonal and # of fixed differences below the diagonal
-
-ggsave("~/Desktop/hipposideros/heatmap.pdf", width = 6, height = 5)
-
-knitr::include_graphics(c("/Users/devder/Desktop/hipposideros/map.network.pca.heatmap.fig.png"))
-
-#are there any fixed differences between the large and small forms?
-dia.af<-(rowSums(conv.mat[,c(1:3,7:12,20:28)], na.rm=T)/(rowSums(is.na(conv.mat[,c(1:3,7:12,20:28)]) == FALSE)))/2
-din.af<-(rowSums(conv.mat[,c(4:6,13:17,19)], na.rm=T)/(rowSums(is.na(conv.mat[,c(4:6,13:17,19)]) == FALSE)))/2
-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) == 1) #find fixed SNPs and add to vector
-
-#only 4 SNPs with allele frequency differences greater than .8 out of nearly 40K SNPs
-sum(is.na(abs(dia.af - din.af)) == FALSE & abs(dia.af - din.af) >.8)
-
-#Zero fixed differences between the large and small morphologies
-fst.gen<-new("genlight",(as.matrix(gen)[c(1:17,19:28), ]))
-fst.gen@pop<-as.factor(droplevels(locs$species[c(1:17,19:28)]))
-#calc pairwise Fst
-j<-stamppFst(fst.gen)
-#Fst between the two morphological forms is .06
-
-```
-
-
-```{r}
-#investigate private alleles and heterozygosity
-gen.mat<-as.matrix(gen)
-loci<-rowSums(is.na(gen.mat) == FALSE)
-het<-rowSums(gen.mat == 1, na.rm = TRUE)/loci
-het.df<-data.frame(id=locs$id,pop=locs$pop,het=het)
-
-#plot heterozygosity as violin plots for each subspecies
-ggplot(het.df, aes(x=pop, y=het)) + 
-  geom_violin(trim=FALSE)+
-  geom_dotplot(binaxis='y', stackdir='center', dotsize = .35, alpha=.6)+
-  theme_classic()+
-  ylab(label = "mean heterozygosity per sample")+
-  theme(axis.text.x = element_text(face = "italic", angle = 45, hjust = 1),
-        axis.title.x = element_blank())
-
-#make island size df
-het.df$island<-c("Gatokae", rep("Guadalcanal", times=7), rep("Isabel", times=9), "Makira","Guadalcanal",rep("Ngella", times=6),"ENB","PNG","PNG")
-#size of each island in square miles
-het.df$size<-c(36,rep(2047, times=7),rep(1158, times=9),1232,2047,rep(130, times=6),14100,178704,178704)
-het.df$spec<-locs$species
-#scatter showing the relationship between heterozygosity and island size
-ggplot(het.df, aes(x=log(size), y=het))+
-  geom_point(cex = 3, alpha=.5)+
-  geom_smooth(method = lm)+
-  theme_classic()+
-  ylab(label = "individual heterozygosity")+
-  xlab(label="log transformed island area")
-
-ggplot(het.df, aes(x=log(size), y=het, color=spec))+
-  geom_point(cex = 3, alpha=.5)+
-  theme_classic()+
-  ylab(label = "individual heterozygosity")+
-  xlab(label="log transformed island area")
-
+par(mfrow=c(1,1))
+#plot each run
+for (i in 1:10){
+barplot(t(as.matrix(runs[[i]])), col=rainbow(i), ylab="Ancestry", border="black")
+}
 ```
 
