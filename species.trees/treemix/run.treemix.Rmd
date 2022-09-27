@@ -1,0 +1,159 @@
+---
+title: "run.treemix"
+author: "Devon DeRaad"
+date: '2022-09-23'
+output: html_document
+---
+
+### make a popmap for stacks
+```{r}
+library(vcfR)
+#read in vcf
+vcfR <- read.vcfR("~/Desktop/hipposideros/unlinked.filtered.vcf")
+#read in locality info for samples
+locs<-read.csv("~/Desktop/hipposideros/hipposideros.sampling.csv")
+#subset locs to include only samples that passed filtering, and have been retained in the vcf
+locs<-locs[locs$id %in% colnames(vcfR@gt),]
+#check number of samples per species
+locs<-droplevels(locs)
+locs$Island<-gsub("Ngella Islands","Ngella",locs$Island)
+locs$Island<-gsub("New Britain","NB",locs$Island)
+locs$pop<-paste(locs$species, locs$Island, sep = "_")
+table(locs$pop)
+
+#subset to just sample.id /t pop
+loc.sub<-locs[,c(1,8)]
+#write a popmap for assigning samples to tips
+write.table(loc.sub, file="~/Desktop/hipposideros/pops.popmap.txt", quote = F, row.names = F, col.names = F, sep = "\t")
+```
+
+```{bash, eval=FALSE}
+#run treemix on KU cluster using the unlinked, filtered vcf file and that popmap as input:
+#!/bin/sh
+#
+#SBATCH --job-name=treemix              # Job Name
+#SBATCH --nodes=1             # 40 nodes
+#SBATCH --ntasks-per-node=1               # 40 CPU allocation per Task
+#SBATCH --partition=sixhour            # Name of the Slurm partition used
+#SBATCH --chdir=/home/d669d153/work/hipposideros/treemix    # Set working d$
+#SBATCH --mem-per-cpu=2000           # memory requested
+#SBATCH --time=360
+
+#convert vcf into treemix file
+/home/d669d153/work/stacks-2.41/populations --in_vcf unlinked.filtered.vcf -O . --treemix -M pops.popmap.txt
+#remove stacks header and standardize filename
+echo "$(tail -n +2 unlinked.filtered.p.treemix)" > unlinked.filtered.recode.p.treemix
+#gzip file for input to treemix
+gzip unlinked.filtered.recode.p.treemix
+
+#run treemix with m0
+/panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -root diadema_PNG -o treem0
+
+#add 1 migration edge
+/panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem0.vertices.gz treem0.edges.gz -o treem1
+
+#add 2 migration edges
+/panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem1.vertices.gz treem1.edges.gz -o treem2
+
+#add 3 migration edges
+/panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem2.vertices.gz treem2.edges.gz -o treem3
+
+#add 4 migration edges
+/panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem3.vertices.gz treem3.edges.gz -o treem4
+
+#add 5 migration edges
+/panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem4.vertices.gz treem4.edges.gz -o treem5
+```
+
+### plot treemix outputs
+```{r, results=FALSE, warning=FALSE}
+#plot results
+#source plotting functions that are distributed with treemix
+source("~/Downloads/plotting_funcs.R")
+
+#move into the treemix output directory and plot trees
+setwd("~/Desktop/hipposideros/treemix/")
+#0 edge
+plot_tree("treem0")
+#1 edge
+plot_tree("treem1", plus = 0.05, arrow=.2, ybar = 0, scale=F, lwd=2.5, cex = 1)
+#2 edges
+plot_tree("treem2")
+#3 edges
+plot_tree("treem3")
+#4 edges
+plot_tree("treem4")
+#5 edges
+plot_tree("treem5")
+```
+
+### plot variance explained by each additional edge
+```{r}
+#move into the treemix output directory and plot trees
+setwd("~/Desktop/hipposideros/treemix/")
+
+#plot to see how much variance is explained by each edge
+m=NULL
+for(i in 0:5){
+  m[i+1] <- get_f(paste0("treem",i))
+}
+
+m
+plot(seq(0,5),m,pch="*",cex=2,col="blue", type="b",xlab="migration edge number", ylab="% explained variance")
+```
+
+### Make a directory called 'boots' to hold bootstrap output
+### Run bootstrapping on optimal tree (here 1 migr edge)
+```{bash, eval=FALSE}
+#!/bin/sh
+#
+#SBATCH --job-name=aph.treemix               # Job Name
+#SBATCH --nodes=1             # 40 nodes
+#SBATCH --ntasks-per-node=1               # 40 CPU allocation per Task
+#SBATCH --partition=bi            # Name of the Slurm partition used
+#SBATCH --chdir=/home/d669d153/work/hipposideros/treemix/boots     # Set working d$
+#SBATCH --mem-per-cpu=1000            # memory requested
+#SBATCH --time=2000
+
+
+#bootstraps over 100 snps with migration edges
+for i in {1..100}; do
+    /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i /home/d669d153/work/hipposideros/treemix/unlinked.filtered.recode.p.treemix.gz -m 1 -g /home/d669d153/work/hipposideros/treemix/treem0.vertices.gz /home/d669d153/work/hipposideros/treemix/treem0.edges.gz -bootstrap -k 100 -o $i.treemix
+done;
+
+# unzip the tree files
+for i in { ls *treeout.gz }; do
+    gzip -d $i
+done;
+```
+
+```{r, eval=FALSE}
+# in R on the cluster:
+#summarize bootstraps
+module load R
+R --no-save
+setwd("/home/d669d153/work/hipposideros/treemix/boots/")
+
+x <- list.files(pattern="*treeout")
+for(a in 1:length(x)) {
+        if (a==1) {
+                output <- scan(x[a], what="character")[1]
+        } else {
+                output <- c(output, scan(x[a], what="character")[1])
+        }
+}
+write(output, file="hippo.100.bootstraps.trees", ncolumns=1)
+```
+
+### summarize bootstraps using dendropy v4.5.2
+```{bash, eval=FALSE}
+# in bash 
+# summarize bootstraps
+/home/d669d153/work/DendroPy/applications/sumtrees/sumtrees.py --output=hippo.boots.summed.tre --min-clade-freq=0.05 hippo.100.bootstraps.trees
+```
+
+### view node support in a tree viewer like FigTree
+```{r}
+knitr::include_graphics("/Users/devder/Desktop/hipposideros/treemix.support.vals.png")
+```
+

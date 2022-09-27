@@ -1,0 +1,135 @@
+Logging to './filtered.unlinked.p.log'.
+Locus/sample distributions will be written to './filtered.unlinked.p.log.distribs'.
+populations parameters selected:
+  Input mode: VCF
+  Percent samples limit per population: 0
+  Locus Population limit: 1
+  Percent samples overall: 0
+  Minor allele frequency cutoff: 0
+  Maximum observed heterozygosity cutoff: 1
+  Applying Fst correction: none.
+  Pi/Fis kernel smoothing: off
+  Fstats kernel smoothing: off
+  Bootstrap resampling: off
+
+Parsing population map...
+The population map contained 28 samples, 10 population(s), 1 group(s).
+Opening the VCF file...
+Error: Failed to open 'filtered.unlinked.vcf' for reading.
+*** Error in `/home/d669d153/work/stacks-2.41/populations': double free or corruption (out): 0x00007ffe77493c50 ***
+======= Backtrace: =========
+/lib64/libc.so.6(+0x81329)[0x2b775579b329]
+/home/d669d153/work/stacks-2.41/populations[0x42109a]
+/home/d669d153/work/stacks-2.41/populations[0x40a730]
+/lib64/libc.so.6(__libc_start_main+0xf5)[0x2b775573c555]
+/home/d669d153/work/stacks-2.41/populations[0x409179]
+======= Memory map: ========
+00400000-00408000 r--p 00000000 00:28 112230310                          /panfs/pfs.local/work/bi/d669d153/stacks-2.41/populations
+00408000-004f8000 r-xp 00008000 00:28 112230310                          /panfs/pfs.local/work/bi/d669d153/stacks-2.41/populations
+004f8000-00568000 r--p 000f8000 00:28 112230310                          /panfs/pfs.local/work/bi/d669d153/stacks-2.41/populations
+00568000-00569000 r--p 00167000 00:28 112230310                          /panfs/pfs.local/work/bi/d669d153/stacks-2.41/populations
+00569000-0056c000 rw-p 00168000 00:28 112230310                          /panfs/pfs.local/work/bi/d669d153/stacks-2.41/populations
+0056c000-0056d000 rw-p 00000000 00:00 0 
+012d5000-01307000 rw-p 00000000 00:00 0                                  [heap]
+2b7754dc2000-2b7754de4000 r-xp 00000000 08:02 139165                     /usr/lib64/ld-2.17.so
+2b7754de4000-2b7754de8000 rw-p 00000000 00:00 0 
+2b7754dfe000-2b7754dff000 rw-p 00000000 00:00 0 
+2b7754dff000-2b7754e07000 r--p 00000000 00:28 3803535277                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgomp.so.1.0.0
+2b7754e07000-2b7754e25000 r-xp 00008000 00:28 3803535277                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgomp.so.1.0.0
+2b7754e25000-2b7754e2d000 r--p 00026000 00:28 3803535277                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgomp.so.1.0.0
+2b7754e2d000-2b7754e2e000 r--p 0002d000 00:28 3803535277                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgomp.so.1.0.0
+2b7754e2e000-2b7754e2f000 rw-p 0002e000 00:28 3803535277                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgomp.so.1.0.0
+2b7754e2f000-2b7754ec0000 r--p 00000000 00:28 1549263207                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libstdc++.so.6.0.25
+2b7754ec0000-2b7754f6c000 r-xp 00091000 00:28 1549263207                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libstdc++.so.6.0.25
+2b7754f6c000-2b7754faa000 r--p 0013d000 00:28 1549263207                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libstdc++.so.6.0.25
+2b7754faa000-2b7754fab000 ---p 0017b000 00:28 1549263207                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libstdc++.so.6.0.25
+2b7754fab000-2b7754fb5000 r--p 0017b000 00:28 1549263207                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libstdc++.so.6.0.25
+2b7754fb5000-2b7754fb7000 rw-p 00185000 00:28 1549263207                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libstdc++.so.6.0.25
+2b7754fb7000-2b7754fbc000 rw-p 00000000 00:00 0 
+2b7754fbc000-2b7754fbf000 r--p 00000000 00:28 2815558611                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgcc_s.so.1
+2b7754fbf000-2b7754fd0000 r-xp 00003000 00:28 2815558611                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgcc_s.so.1
+2b7754fd0000-2b7754fd3000 r--p 00014000 00:28 2815558611                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgcc_s.so.1
+2b7754fd3000-2b7754fd4000 ---p 00017000 00:28 2815558611                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgcc_s.so.1
+2b7754fd4000-2b7754fd5000 r--p 00017000 00:28 2815558611                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgcc_s.so.1
+2b7754fd5000-2b7754fd6000 rw-p 00018000 00:28 2815558611                 /panfs/pfs.local/software/7/install/gcc/8.3.0/lib64/libgcc_s.so.1
+2b7754fd6000-2b7754fdb000 rw-p 00000000 00:00 0 
+2b7754fe3000-2b7754fe4000 r--p 00021000 08:02 139165                     /usr/lib64/ld-2.17.so
+2b7754fe4000-2b7754fe5000 rw-p 00022000 08:02 139165                     /usr/lib64/ld-2.17.so
+2b7754fe5000-2b7754fe6000 rw-p 00000000 00:00 0 
+2b7754fe6000-2b7754ffb000 r-xp 00000000 08:02 135598                     /usr/lib64/libz.so.1.2.7
+2b7754ffb000-2b77551fa000 ---p 00015000 08:02 135598                     /usr/lib64/libz.so.1.2.7
+2b77551fa000-2b77551fb000 r--p 00014000 08:02 135598                     /usr/lib64/libz.so.1.2.7
+2b77551fb000-2b77551fc000 rw-p 00015000 08:02 135598                     /usr/lib64/libz.so.1.2.7
+2b77551fc000-2b77552fd000 r-xp 00000000 08:02 135536                     /usr/lib64/libm-2.17.so
+2b77552fd000-2b77554fc000 ---p 00101000 08:02 135536                     /usr/lib64/libm-2.17.so
+2b77554fc000-2b77554fd000 r--p 00100000 08:02 135536                     /usr/lib64/libm-2.17.so
+2b77554fd000-2b77554fe000 rw-p 00101000 08:02 135536                     /usr/lib64/libm-2.17.so
+2b77554fe000-2b7755515000 r-xp 00000000 08:02 135572                     /usr/lib64/libpthread-2.17.so
+2b7755515000-2b7755714000 ---p 00017000 08:02 135572                     /usr/lib64/libpthread-2.17.so
+2b7755714000-2b7755715000 r--p 00016000 08:02 135572                     /usr/lib64/libpthread-2.17.so
+2b7755715000-2b7755716000 rw-p 00017000 08:02 135572                     /usr/lib64/libpthread-2.17.so
+2b7755716000-2b775571a000 rw-p 00000000 00:00 0 
+2b775571a000-2b77558de000 r-xp 00000000 08:02 135520                     /usr/lib64/libc-2.17.so
+2b77558de000-2b7755add000 ---p 001c4000 08:02 135520                     /usr/lib64/libc-2.17.so
+2b7755add000-2b7755ae1000 r--p 001c3000 08:02 135520                     /usr/lib64/libc-2.17.so
+2b7755ae1000-2b7755ae3000 rw-p 001c7000 08:02 135520                     /usr/lib64/libc-2.17.so
+2b7755ae3000-2b7755ae8000 rw-p 00000000 00:00 0 
+2b7755ae8000-2b7755aea000 r-xp 00000000 08:02 135532                     /usr/lib64/libdl-2.17.so
+2b7755aea000-2b7755cea000 ---p 00002000 08:02 135532                     /usr/lib64/libdl-2.17.so
+2b7755cea000-2b7755ceb000 r--p 00002000 08:02 135532                     /usr/lib64/libdl-2.17.so
+2b7755ceb000-2b7755cec000 rw-p 00003000 08:02 135532                     /usr/lib64/libdl-2.17.so
+2b7758000000-2b7758021000 rw-p 00000000 00:00 0 
+2b7758021000-2b775c000000 ---p 00000000 00:00 0 
+7ffe77476000-7ffe77499000 rw-p 00000000 00:00 0                          [stack]
+7ffe77574000-7ffe77576000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+/var/spool/slurmd/job36715591/slurm_script: line 12:   784 Aborted                 (core dumped) /home/d669d153/work/stacks-2.41/populations --in_vcf filtered.unlinked.vcf -O . --treemix -M pops.popmap.txt
+tail: cannot open ‘filtered.unlinked.90.p.treemix’ for reading: No such file or directory
+gsl: init_source.c:29: ERROR: matrix dimension n1 must be positive integer
+
+TreeMix v. 1.13
+$Revision: 231 $
+
+npop:0 nsnp:0
+Default GSL error handler invoked.
+/var/spool/slurmd/job36715591/slurm_script: line 19:   787 Aborted                 (core dumped) /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -root melanurus -o treem0
+gsl: init_source.c:29: ERROR: matrix dimension n1 must be positive integer
+
+TreeMix v. 1.13
+$Revision: 231 $
+
+npop:0 nsnp:0
+Default GSL error handler invoked.
+/var/spool/slurmd/job36715591/slurm_script: line 22:   788 Aborted                 (core dumped) /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem0.vertices.gz treem0.edges.gz -o treem1
+gsl: init_source.c:29: ERROR: matrix dimension n1 must be positive integer
+
+TreeMix v. 1.13
+$Revision: 231 $
+
+npop:0 nsnp:0
+Default GSL error handler invoked.
+/var/spool/slurmd/job36715591/slurm_script: line 25:   789 Aborted                 (core dumped) /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem1.vertices.gz treem1.edges.gz -o treem2
+gsl: init_source.c:29: ERROR: matrix dimension n1 must be positive integer
+
+TreeMix v. 1.13
+$Revision: 231 $
+
+npop:0 nsnp:0
+Default GSL error handler invoked.
+/var/spool/slurmd/job36715591/slurm_script: line 28:   790 Aborted                 (core dumped) /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem2.vertices.gz treem2.edges.gz -o treem3
+gsl: init_source.c:29: ERROR: matrix dimension n1 must be positive integer
+
+TreeMix v. 1.13
+$Revision: 231 $
+
+npop:0 nsnp:0
+Default GSL error handler invoked.
+/var/spool/slurmd/job36715591/slurm_script: line 31:   791 Aborted                 (core dumped) /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem3.vertices.gz treem3.edges.gz -o treem4
+gsl: init_source.c:29: ERROR: matrix dimension n1 must be positive integer
+
+TreeMix v. 1.13
+$Revision: 231 $
+
+npop:0 nsnp:0
+Default GSL error handler invoked.
+/var/spool/slurmd/job36715591/slurm_script: line 34:   792 Aborted                 (core dumped) /panfs/pfs.local/work/bi/bin/treemix-1.13/src/treemix -i unlinked.filtered.recode.p.treemix.gz -m 1 -g treem4.vertices.gz treem4.edges.gz -o treem5

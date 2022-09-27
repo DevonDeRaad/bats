@@ -1,0 +1,19 @@
+populations v2.41, executed 2022-09-23 09:26:55 (zlib-1.2.7)
+/home/d669d153/work/stacks-2.41/populations --in_vcf filtered.unlinked.vcf -O . --treemix -M pops.popmap.txt
+Locus/sample distributions will be written to './filtered.unlinked.p.log.distribs'.
+populations parameters selected:
+  Input mode: VCF
+  Percent samples limit per population: 0
+  Locus Population limit: 1
+  Percent samples overall: 0
+  Minor allele frequency cutoff: 0
+  Maximum observed heterozygosity cutoff: 1
+  Applying Fst correction: none.
+  Pi/Fis kernel smoothing: off
+  Fstats kernel smoothing: off
+  Bootstrap resampling: off
+
+Parsing population map...
+The population map contained 28 samples, 10 population(s), 1 group(s).
+Opening the VCF file...
+Error: Failed to open 'filtered.unlinked.vcf' for reading.

@@ -1,0 +1,36 @@
+branch	branch_descendants	Outgroup	diadema_NB	demissus_Makira	diadema_Rendova	diadema_Gatokae	diadema_Isabel	dinops_Rendova	diadema_Ngella	diadema_Guadalcanal	dinops_Guadalcanal
+b2	diadema_NB	nan	nan	nan	nan	nan	nan	nan	nan	nan	nan
+b3	demissus_Makira,diadema_Rendova,diadema_Gatokae,diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	nan	nan	nan	nan	nan	nan	nan	nan	nan
+b4	demissus_Makira	nan	0	nan	nan	nan	nan	nan	nan	nan	nan
+b5	diadema_Rendova,diadema_Gatokae,diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	nan	nan	nan	nan	nan	nan	nan	nan
+b6	diadema_Rendova	nan	0	0	nan	nan	nan	nan	nan	nan	nan
+b7	diadema_Gatokae,diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0	nan	nan	nan	nan	nan	nan	nan
+b8	diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0	0	nan	nan	nan	nan	nan	nan
+b9	diadema_Gatokae	nan	0	0	0.138524	nan	nan	nan	nan	nan	nan
+b10	diadema_Isabel	nan	0	0	0	0	nan	nan	nan	nan	nan
+b11	dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0	0	0	nan	nan	nan	nan	nan
+b12	dinops_Rendova	nan	0	0	0.0192704	0	0	nan	nan	nan	nan
+b13	diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0	0	0	0	nan	nan	nan	nan
+b14	diadema_Ngella	nan	0.00414017	0	0	0.0463935	0.106474	0.0207172	nan	nan	nan
+b15	diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0	0	0	0	0	nan	nan	nan
+b16	diadema_Guadalcanal	nan	0.00954879	0	0	0	0	0	0	nan	nan
+b17	dinops_Guadalcanal	nan	0	0	0	0	0	0.108894	0	nan	nan
+
+# Zscores:
+branch	branch_descendants	Outgroup	diadema_NB	demissus_Makira	diadema_Rendova	diadema_Gatokae	diadema_Isabel	dinops_Rendova	diadema_Ngella	diadema_Guadalcanal	dinops_Guadalcanal
+b2	diadema_NB	nan	nan	nan	nan	nan	nan	nan	nan	nan	nan
+b3	demissus_Makira,diadema_Rendova,diadema_Gatokae,diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	nan	nan	nan	nan	nan	nan	nan	nan	nan
+b4	demissus_Makira	nan	0	nan	nan	nan	nan	nan	nan	nan	nan
+b5	diadema_Rendova,diadema_Gatokae,diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0.238347	nan	nan	nan	nan	nan	nan	nan	nan
+b6	diadema_Rendova	nan	0	0	nan	nan	nan	nan	nan	nan	nan
+b7	diadema_Gatokae,diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0.0588986	1.83819	nan	nan	nan	nan	nan	nan	nan
+b8	diadema_Isabel,dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0.199611	0	nan	nan	nan	nan	nan	nan
+b9	diadema_Gatokae	nan	0	0	17.1508	nan	nan	nan	nan	nan	nan
+b10	diadema_Isabel	nan	0.65572	0	0	0	nan	nan	nan	nan	nan
+b11	dinops_Rendova,diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0	0	0	nan	nan	nan	nan	nan
+b12	dinops_Rendova	nan	0	0	2.87705	2.25138	1.58478	nan	nan	nan	nan
+b13	diadema_Ngella,diadema_Guadalcanal,dinops_Guadalcanal	nan	0	1.87437	0	0	0	nan	nan	nan	nan
+b14	diadema_Ngella	nan	1.56038	0	0.62108	3.45303	2.42322	1.57015	nan	nan	nan
+b15	diadema_Guadalcanal,dinops_Guadalcanal	nan	0	0.300855	0	0	0	0	nan	nan	nan
+b16	diadema_Guadalcanal	nan	3.13741	0.951461	1.22387	1.27794	0	0	0.1294	nan	nan
+b17	dinops_Guadalcanal	nan	0	0	0	0	1.85275	4.37866	0	nan	nan

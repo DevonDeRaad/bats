@@ -1,0 +1,63 @@
+---
+title: "run.dsuite"
+author: "Devon DeRaad"
+date: '2022-09-23'
+output: html_document
+---
+
+### Set up directory
+```{bash, eval=FALSE}
+######### DSUITE cannot tolerate periods in input tip names or species names (must change to underscores)
+#cluster commands
+##copy in ruby scripts
+#cp /home/d669d153/work/todi.subset.2022/dsuite/plot_d.rb .
+#cp /home/d669d153/work/todi.subset.2022/dsuite/plot_f4ratio.rb .
+#copy in popmap that we set up for treemix
+#cp /home/d669d153/work/hipposideros/treemixpops.popmap.txt /home/d669d153/work/hipposideros/dsuite/
+```
+
+### construct tree
+```{bash, eval=FALSE}
+#open the optimal species tree from ASTRAL-III in FigTree and export as newick
+#((diadema_NB:1.0,(demissus_Makira:1.0,(diadema_Rendova:1.0,((diadema_Isabel:0.02958088989408414,(dinops_Rendova:0.5598638189389901,(diadema_Ngella:0.3167073928987385,(diadema_guadalcanal:0.215690041971641,dinops_guadalcanal:0.7996628368195531):0.01980274625603995):0.11960241990869347):0.032033561132647215):0.08279297868828939,diadema_gatokae:1.0):0.11412736552570513):0.07078128209320411):0.40135162456588835):0.2246202495420926,Outgroup:0.2246202495420926);
+(Outgroup,(diadema_NB,(demissus_Makira,(diadema_Rendova,(diadema_Gatokae,((dinops_Guadalcanal,(diadema_Ngella,diadema_Guadalcanal)),(diadema_Isabel,dinops_Rendova)))))));
+#add a plot order file that looks like:
+Outgroup
+diadema_NB
+demissus_Makira
+diadema_Rendova
+diadema_Ngella
+dinops_Guadalcanal
+diadema_Guadalcanal
+diadema_Gatokae
+diadema_Isabel
+dinops_Rendova
+```
+
+### run Dtrios to calculate all possible pairwise D and F4 statistics
+```{bash, eval=FALSE}
+##run Dtrios
+##-c means this is the whole file, -n gives the name, -t gives the guidetree, followed by the vcf and popmap
+#/home/d669d153/work/Dsuite/Build/Dsuite Dtrios -c -n unlinked -t tre.nwk unlinked.filtered.vcf pops.popmap.txt
+#
+##plot heatmap of D
+#ruby plot_d.rb pops.popmap_unlinked_BBAA.txt plot_order.txt 0.7 unlinked_BBAA_D.svg
+#
+##plot heatmap of f4
+#ruby plot_f4ratio.rb pops.popmap_unlinked_BBAA.txt plot_order.txt 0.2 unlinked_BBAA_f4ratio.svg
+#
+##run fbranch on the guidetree, with the Dtrios output ending in 'tree.txt' (guidetree must be rooted on #outgroup)
+#/home/d669d153/work/Dsuite/Build/Dsuite Fbranch tre.nwk pops.popmap_unlinked_tree.txt > unlinked_Fbranch.txt
+#
+#module load python
+##plot the fbranch heatmap with guidetree above
+#/home/d669d153/work/Dsuite/utils/dtools.py unlinked_Fbranch.txt tre.nwk
+##run fbranch on the guidetree, with the Dtrios output ending in 'tree.txt' (guidetree must be rooted on #outgroup) (Now exporting Z scores)
+#/home/d669d153/work/Dsuite/Build/Dsuite Fbranch tre.nwk pops.popmap_unlinked_tree.txt -Z zscores > unlinked_Fbranch.txt
+```
+
+### visualize pairwise ABBA/BABA tests
+```{r}
+knitr::include_graphics("/Users/devder/Desktop/hipposideros/dsuite/unlinked_BBAA_D.svg")
+```
+
