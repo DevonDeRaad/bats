@@ -19,7 +19,7 @@ Repository for analysis of *Hipposideros diadema*, *dinops*, and *demissus* RADs
 
 *   See species tree analyses reconstructing the relationships between the putative species we have identified using [ASTRAL-III](https://github.com/smirarab/ASTRAL) and [TreeMix](https://web.stanford.edu/group/pritchardlab/software.html):
 
-    > <https://devonderaad.github.io/bats/species.trees.html>
+    > <https://github.com/DevonDeRaad/bats/tree/master/species.trees>
     
 *   See tests for gene flow using [Dsuite](https://github.com/millanek/Dsuite):
 
