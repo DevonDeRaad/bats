@@ -1,5 +1,11 @@
+[![DOI](https://zenodo.org/badge/321082355.svg)](https://zenodo.org/doi/10.5281/zenodo.10780527)
+
 Repository for analysis of *Hipposideros diadema*, *dinops*, and *demissus* RADseq data
 ==================================================================================
+
+*   Find the raw data needed to recreate analyses from the paper here:
+
+    > <https://github.com/DevonDeRaad/bats/tree/master/data>
 
 *   Find the lab protocols used to generate genomic data here:
 
